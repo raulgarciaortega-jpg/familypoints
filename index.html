@@ -3,190 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Family Points Pro</title>
+    <title>Family Points</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --primary: #4a90e2; --accent: #50e3c2; --danger: #ff6b6b; --bg: #f8f9fa; --text: #2d3436; }
+        :root { --primary: #4a90e2; --bg: #f8f9fa; --text: #2d3436; --card-bg: #ffffff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
 
-        /* --- LOGIN --- */
-        #auth-screen { position: fixed; inset: 0; background: var(--primary); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 2000; padding: 20px; }
-        .login-card { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-        .app-title { font-size: 2rem; color: white; font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; }
-        input { width: 100%; padding: 14px; margin: 8px 0; border: 2px solid #eee; border-radius: 10px; font-size: 16px; background: #fafafa; transition: 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; background: #fff; }
-        .btn-auth { width: 100%; padding: 14px; margin-top: 10px; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .btn-login { background: var(--primary); color: white; }
-        .btn-register { background: white; border: 2px solid var(--primary); color: var(--primary); }
-
-        /* --- APP UI --- */
-        header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
-        .user-badge { background: var(--primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+        /* HEADER */
+        header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
+        .user-pill { background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
         
+        /* CONTENT */
         .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
-        .card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); }
+        h2 { color: var(--primary); margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+
+        /* FORMS & LISTS */
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: white; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-del { background: #ffebee; color: #ff4757; width: auto; padding: 8px 12px; margin: 0; }
         
-        h2 { margin: 0 0 15px 0; font-size: 1.2rem; color: var(--primary); font-weight: 700; }
-        h3 { font-size: 0.85rem; text-transform: uppercase; color: #b2bec3; margin: 20px 0 10px 0; letter-spacing: 1px; font-weight: 700; }
-
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
-        .list-item:last-child { border-bottom: none; }
+        /* LOGIN SCREEN */
+        #auth-screen { position: fixed; inset: 0; background: var(--primary); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .login-box { background: white; padding: 30px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
         
-        /* Select & Inputs in App */
-        select { width: 100%; height: 50px; border: 2px solid #eee; border-radius: 10px; padding: 0 10px; font-size: 16px; background: #fff; margin-bottom: 10px; }
-        .row-inputs { display: flex; gap: 10px; }
+        /* NAVBAR */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: grid; grid-template-columns: repeat(4, 1fr); height: 70px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 11px; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-item span { font-size: 24px; margin-bottom: 3px; }
+
+        /* MODAL (Ventana Emergente de Canjeo) */
+        #redeem-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
         
-        /* Botones */
-        .btn { width: 100%; height: 50px; border: none; border-radius: 10px; font-weight: bold; color: white; font-size: 1rem; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-primary { background: var(--primary); box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3); }
-        .btn-success { background: var(--accent); color: #006266; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-icon { width: 36px; height: 36px; border-radius: 50%; border: none; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; cursor: pointer; margin-left: 5px; }
-        .btn-edit { background: #fff3cd; color: #856404; }
-        .btn-del { background: #ffebee; color: var(--danger); }
-
-        /* Calendario en Canjeo */
-        .redeem-card { border: 2px solid transparent; transition: 0.3s; }
-        .redeem-card.selected { border-color: var(--primary); background: #f0f7ff; }
-        .date-picker-container { margin-top: 10px; display: none; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #eee; }
-        .date-picker-container.active { display: block; animation: fadeIn 0.3s; }
-        input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
-
-        /* Navbar */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: white; border-top: 1px solid #f0f0f0; display: grid; grid-template-columns: repeat(4, 1fr); z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 11px; color: #b2bec3; cursor: pointer; transition: 0.2s; }
-        .nav-item.active { color: var(--primary); font-weight: bold; transform: translateY(-2px); }
-        .nav-item span { font-size: 24px; margin-bottom: 4px; }
-
         .hidden { display: none !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Spinner */
-        #loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 3000; }
-        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* DIAGNÓSTICO */
+        #error-banner { display:none; background: #ff4757; color: white; padding: 10px; text-align: center; font-size: 0.8rem; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay">
-        <div class="spinner"></div>
-        <div style="font-weight:bold; color:#666">Cargando Family Points...</div>
-    </div>
-
     <div id="auth-screen">
-        <div class="app-title">FAMILY POINTS</div>
-        <div class="login-card">
-            <h3 style="margin-top:0; margin-bottom:15px; text-align:center;">Acceso Familiar</h3>
-            <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
-            
-            <button class="btn-auth btn-login" onclick="handleLogin()">Iniciar Sesión</button>
-            <button class="btn-auth btn-register" onclick="handleRegister()">Crear Cuenta</button>
-            <p id="login-msg" style="font-size: 0.8rem; color: var(--danger); margin-top: 10px;"></p>
+        <div class="login-box">
+            <h1 style="color:var(--primary); margin:0 0 20px 0;">Family Points</h1>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="pass" placeholder="Contraseña">
+            <button class="btn" onclick="app.login()">Entrar</button>
+            <button class="btn" onclick="app.register()" style="background:white; color:var(--primary); border:1px solid var(--primary)">Crear Cuenta</button>
+            <div id="error-banner"></div>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
         <header>
-            <span id="user-display" class="user-badge">Cargando...</span>
-            <button onclick="handleLogout()" style="background:none; border:none; color:#666; font-size:0.9rem; cursor:pointer">Salir</button>
+            <span id="header-name" class="user-pill">Cargando...</span>
+            <button onclick="app.logout()" style="background:none; border:none; color:#666;">Salir</button>
         </header>
 
         <div class="main-content">
             
             <div id="view-ranking">
                 <div class="card">
-                    <h2>🏆 Ranking Familiar</h2>
-                    <div id="ranking-list">
-                        <p style="text-align:center; color:#999">Cargando...</p>
-                    </div>
+                    <h2>🏆 Ranking</h2>
+                    <div id="list-ranking">Cargando datos...</div>
+                    <p id="loading-help" style="font-size:0.8rem; color:#999; display:none">
+                        ⚠️ Si esto no carga en 5s, revisa los "Authorized Domains" en Firebase.
+                    </p>
                 </div>
             </div>
 
             <div id="view-add" class="hidden">
                 <div class="card">
-                    <h2>➕ Ganar Puntos</h2>
-                    <p style="color:#666; font-size:0.9rem; margin-bottom:15px">Selecciona una tarea de la lista:</p>
-                    <label>Actividad Realizada</label>
-                    <select id="task-select">
-                        <option value="">Cargando actividades...</option>
-                    </select>
-                    
-                    <label>Tiempo (minutos)</label>
-                    <input type="number" id="task-time" placeholder="Ej: 30">
-                    
-                    <button class="btn btn-primary" onclick="addPoints()">Registrar Tarea</button>
+                    <h2>➕ Sumar Puntos</h2>
+                    <label>Actividad</label>
+                    <select id="select-task"><option>Cargando...</option></select>
+                    <label>Minutos</label>
+                    <input type="number" id="input-time" placeholder="30">
+                    <button class="btn" onclick="app.addPoints()">Guardar</button>
                 </div>
             </div>
 
             <div id="view-redeem" class="hidden">
                 <div class="card">
-                    <h2>🎁 Canjear Puntos</h2>
-                    <p style="font-size:0.85rem; color:#666; margin-bottom:15px">Elige un premio y selecciona una fecha.</p>
-                    
-                    <div id="redeem-list">
-                        <p style="text-align:center; color:#999">Cargando premios...</p>
-                    </div>
+                    <h2>🎁 Canjear</h2>
+                    <p style="color:#666; font-size:0.9rem">Elige un premio para solicitarlo:</p>
+                    <div id="list-redeem">Cargando premios...</div>
                 </div>
             </div>
 
             <div id="view-settings" class="hidden">
-                
                 <div class="card">
-                    <h2>⚙️ Mi Perfil</h2>
-                    <p>Sesión iniciada como: <strong id="settings-email"></strong></p>
+                    <h2>⚙️ Configuración</h2>
+                    <p>Usuario: <b id="my-email"></b></p>
                 </div>
 
                 <div class="card">
-                    <h2>👥 Familiares</h2>
-                    <p style="font-size:0.8rem; color:#666">Edita los nombres si es necesario.</p>
-                    <div id="users-list"></div>
+                    <h2>👥 Familia</h2>
+                    <div id="list-users"></div>
                 </div>
 
                 <div class="card">
-                    <h2>🧹 Actividades (Para ganar)</h2>
-                    <div id="tasks-list"></div>
-                    <h3>Nueva Actividad</h3>
-                    <div class="row-inputs">
-                        <input type="text" id="new-task-name" placeholder="Nombre (ej: Planchar)">
-                        <input type="number" id="new-task-pts" placeholder="Pts" style="width:80px">
+                    <h2>🧹 Actividades (Ganar)</h2>
+                    <div id="list-tasks-admin"></div>
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <input id="new-t-name" placeholder="Nombre">
+                        <input id="new-t-pts" type="number" placeholder="Pts" style="width:70px">
                     </div>
-                    <button class="btn btn-success" onclick="createTask()">Añadir Actividad</button>
+                    <button class="btn" style="margin-top:5px; background:#2ecc71" onclick="app.createTask()">Añadir</button>
                 </div>
 
                 <div class="card">
-                    <h2>🎁 Premios de Canjeo</h2>
-                    <p style="font-size:0.8rem; color:#666">Añade aquí las opciones que saldrán en el menú Canjear.</p>
-                    <div id="rewards-list"></div>
-                    <h3>Nuevo Premio</h3>
-                    <div class="row-inputs">
-                        <input type="text" id="new-reward-name" placeholder="Nombre (ej: Masaje)">
-                        <input type="number" id="new-reward-cost" placeholder="Coste" style="width:80px">
+                    <h2>🎁 Premios (Gastar)</h2>
+                    <div id="list-rewards-admin"></div>
+                    <div style="display:flex; gap:5px; margin-top:10px;">
+                        <input id="new-r-name" placeholder="Nombre">
+                        <input id="new-r-cost" type="number" placeholder="Coste" style="width:70px">
                     </div>
-                    <button class="btn btn-success" onclick="createReward()">Añadir Premio</button>
+                    <button class="btn" style="margin-top:5px; background:#2ecc71" onclick="app.createReward()">Añadir</button>
                 </div>
-
             </div>
         </div>
 
         <nav class="nav-bar">
-            <div class="nav-item active" onclick="nav('view-ranking', this)"><span>🏆</span>Ranking</div>
-            <div class="nav-item" onclick="nav('view-add', this)"><span>➕</span>Subir</div>
-            <div class="nav-item" onclick="nav('view-redeem', this)"><span>🎁</span>Canjear</div>
-            <div class="nav-item" onclick="nav('view-settings', this)"><span>⚙️</span>Ajustes</div>
+            <div class="nav-item active" onclick="app.nav('view-ranking', this)"><span>🏆</span>Ranking</div>
+            <div class="nav-item" onclick="app.nav('view-add', this)"><span>➕</span>Subir</div>
+            <div class="nav-item" onclick="app.nav('view-redeem', this)"><span>🎁</span>Canjear</div>
+            <div class="nav-item" onclick="app.nav('view-settings', this)"><span>⚙️</span>Ajustes</div>
         </nav>
     </div>
 
+    <div id="redeem-modal" class="hidden">
+        <div class="modal-content">
+            <h2 style="border:none">📅 Elegir Fecha</h2>
+            <p id="modal-title" style="font-weight:bold; color:#666"></p>
+            
+            <label style="text-align:left; display:block; margin-top:15px">Fecha para el canje:</label>
+            <input type="date" id="modal-date" style="border:2px solid var(--primary)">
+            
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn" style="background:#ccc; color:#333" onclick="document.getElementById('redeem-modal').classList.add('hidden')">Cancelar</button>
+                <button class="btn" onclick="app.confirmRedeem()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // -------------------------------------------------------------
-        // CONFIGURACIÓN (Tus claves)
-        // -------------------------------------------------------------
+        // --- TUS CLAVES REALES ---
         const firebaseConfig = {
             apiKey: "AIzaSyDhaA-USi3WZD67ymUMTHdrSxvwuoHBgIE",
             authDomain: "familypoints-dic-25.firebaseapp.com",
@@ -196,284 +166,240 @@
             appId: "1:555839746134:web:0bf1e28fbe47438e5a4bf7",
             measurementId: "G-VTXWQBVP02"
         };
-        // -------------------------------------------------------------
 
-        let auth, db, currentUser = null;
-        let allUsersEmails = []; // Para enviar el correo a todos
+        let db, auth, currentUser;
+        let selectedReward = null; // Para guardar qué premio se está canjeando
 
-        // INICIALIZACIÓN
-        function initApp() {
-            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            db = firebase.firestore();
+        const app = {
+            init: function() {
+                try {
+                    firebase.initializeApp(firebaseConfig);
+                    auth = firebase.auth();
+                    db = firebase.firestore();
+                    
+                    auth.onAuthStateChanged(user => {
+                        if(user) {
+                            this.setup(user);
+                        } else {
+                            document.getElementById('auth-screen').classList.remove('hidden');
+                        }
+                    });
 
-            auth.onAuthStateChanged(user => {
-                document.getElementById('loading-overlay').classList.add('hidden');
-                if (user) {
-                    setupApp(user);
-                } else {
-                    showAuth();
+                    // Chivato de carga lenta
+                    setTimeout(() => {
+                        const rankText = document.getElementById('list-ranking').innerText;
+                        if(rankText.includes("Cargando") && !document.getElementById('app-screen').classList.contains('hidden')) {
+                            document.getElementById('loading-help').style.display = 'block';
+                            alert("La app no conecta. ¿Has añadido el dominio en Firebase Console -> Auth -> Settings?");
+                        }
+                    }, 4000);
+
+                } catch(e) {
+                    this.showError("Error inicial: " + e.message);
                 }
-            });
-        }
+            },
 
-        function showAuth() {
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('app-screen').classList.add('hidden');
-        }
-
-        function setupApp(user) {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-            
-            db.collection('users').doc(user.uid).onSnapshot(doc => {
-                if(doc.exists) {
-                    currentUser = { uid: user.uid, ...doc.data() };
-                    document.getElementById('user-display').innerText = `${currentUser.name} (${currentUser.points})`;
-                    document.getElementById('settings-email').innerText = currentUser.email;
-                }
-            });
-
-            listenToData();
-        }
-
-        function nav(viewId, el) {
-            document.querySelectorAll('.main-content > div').forEach(d => d.classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        // --- AUTH ---
-        async function handleLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try { await auth.signInWithEmailAndPassword(e, p); } 
-            catch (err) { alert(err.message); }
-        }
-
-        async function handleRegister() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try {
-                const cred = await auth.createUserWithEmailAndPassword(e, p);
-                const name = e.split('@')[0];
-                await db.collection('users').doc(cred.user.uid).set({
-                    name: name.charAt(0).toUpperCase() + name.slice(1),
-                    email: e,
-                    points: 0
-                });
-                alert("Usuario creado. ¡Bienvenido!");
-            } catch (err) { alert(err.message); }
-        }
-
-        function handleLogout() { auth.signOut(); location.reload(); }
-
-        // --- LISTENERS DE DATOS ---
-        function listenToData() {
-            // 1. Usuarios
-            db.collection('users').onSnapshot(snap => {
-                const list = document.getElementById('ranking-list');
-                const listSet = document.getElementById('users-list');
-                list.innerHTML = ""; listSet.innerHTML = "";
-                allUsersEmails = [];
-
-                let users = [];
-                snap.forEach(doc => {
-                    const u = doc.data();
-                    users.push({id: doc.id, ...u});
-                    allUsersEmails.push(u.email);
-                });
+            setup: function(user) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
                 
-                users.sort((a,b) => b.points - a.points);
-
-                users.forEach(u => {
-                    // Ranking
-                    list.innerHTML += `
-                        <div class="list-item">
-                            <span style="font-weight:600">${u.name}</span>
-                            <span class="user-badge" style="background:#e3f2fd; color:var(--primary)">${u.points} pts</span>
-                        </div>`;
-                    
-                    // Ajustes (Edición)
-                    listSet.innerHTML += `
-                        <div class="list-item">
-                            <div style="flex:1">
-                                <strong>${u.name}</strong><br>
-                                <small>${u.email}</small>
-                            </div>
-                            <button class="btn-icon btn-edit" onclick="editUser('${u.id}', '${u.name}')">✏️</button>
-                        </div>`;
+                // Escuchar mi usuario
+                db.collection('users').doc(user.uid).onSnapshot(doc => {
+                    if(doc.exists) {
+                        currentUser = { uid: user.uid, ...doc.data() };
+                        document.getElementById('header-name').innerText = `${currentUser.name} (${currentUser.points})`;
+                        document.getElementById('my-email').innerText = currentUser.email;
+                    }
                 });
-            });
 
-            // 2. Actividades (Tasks)
-            db.collection('tasks').onSnapshot(snap => {
-                const select = document.getElementById('task-select');
-                const list = document.getElementById('tasks-list');
-                const currentVal = select.value;
-                select.innerHTML = "<option value=''>Selecciona...</option>";
-                list.innerHTML = "";
+                this.listenData();
+            },
 
-                snap.forEach(doc => {
-                    const t = doc.data();
-                    // Select Subir
-                    const opt = document.createElement('option');
-                    opt.value = doc.id; opt.setAttribute('data-pts', t.pts);
-                    opt.text = `${t.name} (+${t.pts})`;
-                    select.appendChild(opt);
+            listenData: function() {
+                // 1. Usuarios (Ranking)
+                db.collection('users').onSnapshot(snap => {
+                    const list = document.getElementById('list-ranking');
+                    const listUsers = document.getElementById('list-users');
+                    list.innerHTML = ""; listUsers.innerHTML = "";
+                    let users = [];
+                    snap.forEach(d => users.push({id:d.id, ...d.data()}));
+                    users.sort((a,b) => b.points - a.points);
 
-                    // Lista Ajustes
-                    list.innerHTML += `
-                        <div class="list-item">
-                            <span>${t.name} (+${t.pts})</span>
-                            <button class="btn-icon btn-del" onclick="deleteDoc('tasks', '${doc.id}')">🗑️</button>
-                        </div>`;
+                    users.forEach(u => {
+                        list.innerHTML += `<div class="list-item"><b>${u.name}</b> <span class="user-pill">${u.points} pts</span></div>`;
+                        
+                        listUsers.innerHTML += `
+                            <div class="list-item">
+                                <span>${u.name} <small>(${u.email})</small></span>
+                                <button class="btn-del" style="background:#eee; color:#333" onclick="app.editUser('${u.id}', '${u.name}')">✏️</button>
+                            </div>`;
+                    });
                 });
-                select.value = currentVal;
-            });
 
-            // 3. Premios (Rewards)
-            db.collection('rewards').onSnapshot(snap => {
-                const redeemList = document.getElementById('redeem-list');
-                const setList = document.getElementById('rewards-list');
-                redeemList.innerHTML = ""; setList.innerHTML = "";
-
-                snap.forEach(doc => {
-                    const r = doc.data();
+                // 2. Tareas
+                db.collection('tasks').onSnapshot(snap => {
+                    const sel = document.getElementById('select-task');
+                    const list = document.getElementById('list-tasks-admin');
+                    const oldVal = sel.value;
+                    sel.innerHTML = "<option value=''>Elige actividad...</option>";
+                    list.innerHTML = "";
                     
-                    // Ajustes (Edición)
-                    setList.innerHTML += `
-                        <div class="list-item">
-                            <span>${r.name} (-${r.cost})</span>
-                            <button class="btn-icon btn-del" onclick="deleteDoc('rewards', '${doc.id}')">🗑️</button>
-                        </div>`;
+                    snap.forEach(d => {
+                        const t = d.data();
+                        // Select
+                        let opt = document.createElement('option');
+                        opt.value = d.id; opt.setAttribute('data-pts', t.pts); opt.text = `${t.name} (+${t.pts})`;
+                        sel.appendChild(opt);
+                        // Admin List
+                        list.innerHTML += `<div class="list-item"><span>${t.name} (+${t.pts})</span> <button class="btn-del" onclick="app.del('tasks','${d.id}')">🗑️</button></div>`;
+                    });
+                    sel.value = oldVal;
+                });
 
-                    // Canjear (Con Calendario)
-                    const canAfford = currentUser && currentUser.points >= r.cost;
-                    const opacity = canAfford ? '1' : '0.6';
-                    
-                    redeemList.innerHTML += `
-                        <div class="card redeem-card" id="card-${doc.id}" style="opacity:${opacity}; margin-bottom:10px; padding:15px;">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <strong style="font-size:1.1rem; color:var(--primary)">${r.name}</strong>
-                                    <div style="font-weight:bold; color:#666">${r.cost} pts</div>
-                                </div>
-                                <button class="btn-icon" style="background:${canAfford?'var(--primary)':'#ccc'}; color:white; width:40px; height:40px;" 
-                                    onclick="toggleDate('${doc.id}', ${r.cost}, '${r.name}')">📅</button>
-                            </div>
-                            
-                            <div id="date-box-${doc.id}" class="date-picker-container">
-                                <label style="display:block; margin-bottom:5px; font-size:0.85rem">Fecha deseada:</label>
-                                <input type="date" id="date-${doc.id}">
-                                <button class="btn btn-primary" style="height:40px; margin-top:10px; font-size:0.9rem"
-                                    onclick="processRedeem('${r.name}', ${r.cost}, 'date-${doc.id}')">
-                                    Confirmar y Enviar Mail ✉️
+                // 3. Premios (Rewards)
+                db.collection('rewards').onSnapshot(snap => {
+                    const listR = document.getElementById('list-redeem');
+                    const listA = document.getElementById('list-rewards-admin');
+                    listR.innerHTML = ""; listA.innerHTML = "";
+
+                    snap.forEach(d => {
+                        const r = d.data();
+                        // Canjear List
+                        const can = currentUser && currentUser.points >= r.cost;
+                        const color = can ? 'var(--primary)' : '#ccc';
+                        
+                        listR.innerHTML += `
+                            <div class="list-item">
+                                <div><b>${r.name}</b><br><small>${r.cost} pts</small></div>
+                                <button onclick="app.openRedeem('${d.id}', '${r.name}', ${r.cost})" 
+                                    style="background:${color}; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold;">
+                                    Canjear
                                 </button>
-                            </div>
-                        </div>`;
+                            </div>`;
+
+                        // Admin List
+                        listA.innerHTML += `<div class="list-item"><span>${r.name} (-${r.cost})</span> <button class="btn-del" onclick="app.del('rewards','${d.id}')">🗑️</button></div>`;
+                    });
                 });
-            });
-        }
+            },
 
-        // --- FUNCIONES LÓGICAS ---
+            // --- ACCIONES ---
 
-        // 1. Modificar Usuario
-        function editUser(uid, oldName) {
-            const newName = prompt("Nuevo nombre para este usuario:", oldName);
-            if(newName && newName !== oldName) {
-                db.collection('users').doc(uid).update({ name: newName })
-                .then(() => alert("Nombre actualizado"));
-            }
-        }
-
-        // 2. Subir Puntos
-        function addPoints() {
-            const sel = document.getElementById('task-select');
-            const time = document.getElementById('task-time').value;
-            if(!sel.value || !time) return alert("Rellena todos los campos");
-
-            const pts = parseInt(sel.options[sel.selectedIndex].getAttribute('data-pts'));
-            const newTotal = (currentUser.points || 0) + pts;
-
-            db.collection('users').doc(currentUser.uid).update({ points: newTotal })
-            .then(() => {
-                alert(`¡+${pts} puntos guardados!`);
-                nav('view-ranking', document.querySelector('.nav-item'));
-            });
-        }
-
-        // 3. Canjear (Lógica UI)
-        function toggleDate(id, cost, name) {
-            if(currentUser.points < cost) return alert("No tienes suficientes puntos.");
-            
-            // Cerrar otros
-            document.querySelectorAll('.date-picker-container').forEach(el => el.classList.remove('active'));
-            // Abrir este
-            document.getElementById(`date-box-${id}`).classList.add('active');
-        }
-
-        // 4. Procesar Canje y Enviar Mail
-        function processRedeem(rewardName, cost, dateInputId) {
-            const dateVal = document.getElementById(dateInputId).value;
-            if(!dateVal) return alert("Por favor, selecciona una fecha en el calendario.");
-
-            if(confirm(`¿Canjear "${rewardName}" para el día ${dateVal}? Se descontarán ${cost} puntos.`)) {
+            openRedeem: function(id, name, cost) {
+                if(currentUser.points < cost) return alert("No tienes suficientes puntos.");
+                selectedReward = { id, name, cost };
                 
-                // A. Restar Puntos
-                const newTotal = currentUser.points - cost;
-                db.collection('users').doc(currentUser.uid).update({ points: newTotal });
+                document.getElementById('modal-title').innerText = `Canjear: ${name} (${cost} pts)`;
+                document.getElementById('modal-date').valueAsDate = new Date(); // Fecha de hoy
+                document.getElementById('redeem-modal').classList.remove('hidden');
+            },
 
-                // B. Guardar en Historial (Opcional, pero recomendado)
-                // db.collection('history').add({ ... }) 
+            confirmRedeem: function() {
+                const date = document.getElementById('modal-date').value;
+                if(!date) return alert("Selecciona una fecha.");
 
-                // C. Enviar Email (Simulado vía Mailto)
-                const subject = encodeURIComponent("📢 Solicitud de Canje - Family Points");
-                const body = encodeURIComponent(
-                    `Hola familia,\n\n` +
-                    `${currentUser.name} quiere canjear sus puntos.\n\n` +
-                    `🎁 Actividad: ${rewardName}\n` +
-                    `📅 Fecha deseada: ${dateVal}\n` +
-                    `💰 Coste: ${cost} puntos\n\n` +
-                    `Por favor, confirmar si os va bien.`
-                );
+                // 1. Restar Puntos
+                db.collection('users').doc(currentUser.uid).update({
+                    points: currentUser.points - selectedReward.cost
+                });
 
-                // Abrir cliente de correo con destinatarios (todos menos yo, o todos)
-                const recipients = allUsersEmails.join(',');
-                window.location.href = `mailto:${recipients}?subject=${subject}&body=${body}`;
+                // 2. Preparar Email
+                // Obtenemos todos los emails de la BD para ponerlos en copia
+                db.collection('users').get().then(snap => {
+                    let emails = [];
+                    snap.forEach(d => emails.push(d.data().email));
+                    const mailList = emails.join(',');
+                    
+                    const subject = encodeURIComponent("Solicitud Canje Puntos");
+                    const body = encodeURIComponent(
+                        `Hola,\n\n${currentUser.name} solicita canjear:\n` +
+                        `🎁 ${selectedReward.name}\n` +
+                        `📅 Fecha: ${date}\n` +
+                        `💰 Coste: ${selectedReward.cost} pts.\n`
+                    );
 
-                alert("Puntos descontados. Enviando solicitud por correo...");
-                nav('view-ranking', document.querySelector('.nav-item'));
+                    window.location.href = `mailto:${mailList}?subject=${subject}&body=${body}`;
+                    
+                    alert("Canje registrado. Se abrirá tu correo para notificar.");
+                    document.getElementById('redeem-modal').classList.add('hidden');
+                });
+            },
+
+            addPoints: function() {
+                const sel = document.getElementById('select-task');
+                const time = document.getElementById('input-time').value;
+                if(!sel.value || !time) return alert("Rellena todo.");
+                
+                const pts = parseInt(sel.options[sel.selectedIndex].getAttribute('data-pts'));
+                db.collection('users').doc(currentUser.uid).update({
+                    points: (currentUser.points || 0) + pts
+                });
+                alert("Puntos sumados.");
+                document.getElementById('input-time').value = "";
+            },
+
+            // --- ADMIN ---
+            createTask: function() {
+                const n = document.getElementById('new-t-name').value;
+                const p = parseInt(document.getElementById('new-t-pts').value);
+                if(n && p) {
+                    db.collection('tasks').add({name:n, pts:p});
+                    document.getElementById('new-t-name').value="";
+                }
+            },
+            createReward: function() {
+                const n = document.getElementById('new-r-name').value;
+                const c = parseInt(document.getElementById('new-r-cost').value);
+                if(n && c) {
+                    db.collection('rewards').add({name:n, cost:c});
+                    document.getElementById('new-r-name').value="";
+                }
+            },
+            del: function(col, id) {
+                if(confirm("¿Borrar?")) db.collection(col).doc(id).delete();
+            },
+            editUser: function(id, name) {
+                const n = prompt("Nuevo nombre:", name);
+                if(n) db.collection('users').doc(id).update({name:n});
+            },
+
+            // --- AUTH ---
+            login: async function() {
+                try {
+                    await auth.signInWithEmailAndPassword(
+                        document.getElementById('email').value,
+                        document.getElementById('pass').value
+                    );
+                } catch(e) { this.showError(e.message); }
+            },
+            register: async function() {
+                try {
+                    const e = document.getElementById('email').value;
+                    const p = document.getElementById('pass').value;
+                    const cred = await auth.createUserWithEmailAndPassword(e, p);
+                    const name = e.split('@')[0];
+                    await db.collection('users').doc(cred.user.uid).set({
+                        name: name.charAt(0).toUpperCase() + name.slice(1), email: e, points: 0
+                    });
+                    alert("Creado con éxito");
+                } catch(e) { this.showError(e.message); }
+            },
+            logout: function() { auth.signOut(); location.reload(); },
+            
+            showError: function(msg) {
+                const b = document.getElementById('error-banner');
+                b.innerText = msg; b.style.display = 'block';
+            },
+
+            nav: function(view, el) {
+                document.querySelectorAll('.main-content > div').forEach(d => d.classList.add('hidden'));
+                document.getElementById(view).classList.remove('hidden');
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                el.classList.add('active');
             }
-        }
+        };
 
-        // --- GESTIÓN DE CONTENIDO (AJUSTES) ---
-        function createTask() {
-            const n = document.getElementById('new-task-name').value;
-            const p = parseInt(document.getElementById('new-task-pts').value);
-            if(n && p) {
-                db.collection('tasks').add({name: n, pts: p});
-                document.getElementById('new-task-name').value = "";
-                document.getElementById('new-task-pts').value = "";
-            }
-        }
-
-        function createReward() {
-            const n = document.getElementById('new-reward-name').value;
-            const c = parseInt(document.getElementById('new-reward-cost').value);
-            if(n && c) {
-                db.collection('rewards').add({name: n, cost: c});
-                document.getElementById('new-reward-name').value = "";
-                document.getElementById('new-reward-cost').value = "";
-            }
-        }
-
-        function deleteDoc(col, id) {
-            if(confirm("¿Borrar este elemento para todos?")) db.collection(col).doc(id).delete();
-        }
-
-        window.onload = initApp;
+        window.onload = () => app.init();
     </script>
 </body>
 </html>
