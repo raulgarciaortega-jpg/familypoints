@@ -3,69 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Family Points</title>
+    <title>Family Points Final</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --primary: #4a90e2; --bg: #f8f9fa; --text: #2d3436; --card-bg: #ffffff; }
+        :root { --primary: #4a90e2; --bg: #f0f2f5; --text: #333; --card: #fff; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
 
         /* HEADER */
-        header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 10; }
-        .user-pill { background: var(--primary); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+        header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .user-pill { background: var(--primary); color: white; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
         
-        /* CONTENT */
-        .main-content { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); }
-        h2 { color: var(--primary); margin-top: 0; font-size: 1.2rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        /* CONTENIDO */
+        .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; }
+        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        h2 { color: var(--primary); margin: 0 0 10px 0; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
 
-        /* FORMS & LISTS */
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: white; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-del { background: #ffebee; color: #ff4757; width: auto; padding: 8px 12px; margin: 0; }
+        /* ELEMENTOS */
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 16px; }
         
-        /* LOGIN SCREEN */
+        .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-top: 5px; }
+        .btn-del { background: #ff7675; width: auto; padding: 5px 10px; margin: 0; font-size: 0.8rem; }
+        .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+
+        /* LOGIN */
         #auth-screen { position: fixed; inset: 0; background: var(--primary); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-box { background: white; padding: 30px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
-        
-        /* NAVBAR */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: grid; grid-template-columns: repeat(4, 1fr); height: 70px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 11px; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .nav-item span { font-size: 24px; margin-bottom: 3px; }
+        .login-box { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 320px; text-align: center; }
 
-        /* MODAL (Ventana Emergente de Canjeo) */
-        #redeem-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
-        
+        /* NAVBAR */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: grid; grid-template-columns: repeat(4, 1fr); height: 65px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aaa; font-size: 10px; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .nav-item span { font-size: 22px; margin-bottom: 2px; }
+
+        /* MODAL */
+        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 320px; text-align: center; }
+
         .hidden { display: none !important; }
-        
-        /* DIAGNÓSTICO */
-        #error-banner { display:none; background: #ff4757; color: white; padding: 10px; text-align: center; font-size: 0.8rem; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
         <div class="login-box">
-            <h1 style="color:var(--primary); margin:0 0 20px 0;">Family Points</h1>
+            <h1 style="color:var(--primary); margin:0 0 15px;">Family Points</h1>
             <input type="email" id="email" placeholder="Email">
             <input type="password" id="pass" placeholder="Contraseña">
             <button class="btn" onclick="app.login()">Entrar</button>
-            <button class="btn" onclick="app.register()" style="background:white; color:var(--primary); border:1px solid var(--primary)">Crear Cuenta</button>
-            <div id="error-banner"></div>
+            <button class="btn" onclick="app.register()" style="background:white; color:var(--primary); border:1px solid var(--primary)">Registrarse</button>
+            <p id="auth-error" style="color:red; font-size:0.8rem; margin-top:10px;"></p>
         </div>
     </div>
 
     <div id="app-screen" class="hidden">
         <header>
-            <span id="header-name" class="user-pill">Cargando...</span>
-            <button onclick="app.logout()" style="background:none; border:none; color:#666;">Salir</button>
+            <span id="header-user" class="user-pill">Cargando...</span>
+            <button onclick="app.logout()" style="border:none; background:none; color:#666;">Salir</button>
         </header>
 
         <div class="main-content">
@@ -73,20 +72,17 @@
             <div id="view-ranking">
                 <div class="card">
                     <h2>🏆 Ranking</h2>
-                    <div id="list-ranking">Cargando datos...</div>
-                    <p id="loading-help" style="font-size:0.8rem; color:#999; display:none">
-                        ⚠️ Si esto no carga en 5s, revisa los "Authorized Domains" en Firebase.
-                    </p>
+                    <div id="list-ranking">Cargando...</div>
                 </div>
             </div>
 
             <div id="view-add" class="hidden">
                 <div class="card">
-                    <h2>➕ Sumar Puntos</h2>
+                    <h2>➕ Ganar Puntos</h2>
                     <label>Actividad</label>
                     <select id="select-task"><option>Cargando...</option></select>
                     <label>Minutos</label>
-                    <input type="number" id="input-time" placeholder="30">
+                    <input type="number" id="input-time" placeholder="Ej: 30">
                     <button class="btn" onclick="app.addPoints()">Guardar</button>
                 </div>
             </div>
@@ -94,40 +90,40 @@
             <div id="view-redeem" class="hidden">
                 <div class="card">
                     <h2>🎁 Canjear</h2>
-                    <p style="color:#666; font-size:0.9rem">Elige un premio para solicitarlo:</p>
-                    <div id="list-redeem">Cargando premios...</div>
+                    <p style="color:#666; font-size:0.9rem">Elige un premio:</p>
+                    <div id="list-redeem"></div>
                 </div>
             </div>
 
             <div id="view-settings" class="hidden">
                 <div class="card">
-                    <h2>⚙️ Configuración</h2>
-                    <p>Usuario: <b id="my-email"></b></p>
+                    <h2>⚙️ Mi Perfil</h2>
+                    <p>Soy: <b id="my-email"></b></p>
                 </div>
 
                 <div class="card">
-                    <h2>👥 Familia</h2>
+                    <h2>👥 Usuarios (Admin)</h2>
                     <div id="list-users"></div>
                 </div>
 
                 <div class="card">
-                    <h2>🧹 Actividades (Ganar)</h2>
+                    <h2>🧹 Actividades</h2>
                     <div id="list-tasks-admin"></div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
+                    <div style="display:flex; gap:5px; margin-top:10px">
                         <input id="new-t-name" placeholder="Nombre">
                         <input id="new-t-pts" type="number" placeholder="Pts" style="width:70px">
                     </div>
-                    <button class="btn" style="margin-top:5px; background:#2ecc71" onclick="app.createTask()">Añadir</button>
+                    <button class="btn" onclick="app.createTask()">Crear Actividad</button>
                 </div>
 
                 <div class="card">
-                    <h2>🎁 Premios (Gastar)</h2>
+                    <h2>🎁 Premios</h2>
                     <div id="list-rewards-admin"></div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
+                    <div style="display:flex; gap:5px; margin-top:10px">
                         <input id="new-r-name" placeholder="Nombre">
-                        <input id="new-r-cost" type="number" placeholder="Coste" style="width:70px">
+                        <input id="new-r-cost" type="number" placeholder="Pts" style="width:70px">
                     </div>
-                    <button class="btn" style="margin-top:5px; background:#2ecc71" onclick="app.createReward()">Añadir</button>
+                    <button class="btn" onclick="app.createReward()">Crear Premio</button>
                 </div>
             </div>
         </div>
@@ -140,23 +136,19 @@
         </nav>
     </div>
 
-    <div id="redeem-modal" class="hidden">
-        <div class="modal-content">
-            <h2 style="border:none">📅 Elegir Fecha</h2>
-            <p id="modal-title" style="font-weight:bold; color:#666"></p>
-            
-            <label style="text-align:left; display:block; margin-top:15px">Fecha para el canje:</label>
-            <input type="date" id="modal-date" style="border:2px solid var(--primary)">
-            
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn" style="background:#ccc; color:#333" onclick="document.getElementById('redeem-modal').classList.add('hidden')">Cancelar</button>
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-box">
+            <h3 id="modal-title">Elegir Fecha</h3>
+            <input type="date" id="modal-date" style="border:2px solid var(--primary); padding:15px;">
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button class="btn" style="background:#ccc; color:#333" onclick="document.getElementById('modal-overlay').classList.add('hidden')">Cancelar</button>
                 <button class="btn" onclick="app.confirmRedeem()">Confirmar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- TUS CLAVES REALES ---
+        // --- PEGA AQUÍ TU CONFIGURACIÓN SI CAMBIA ---
         const firebaseConfig = {
             apiKey: "AIzaSyDhaA-USi3WZD67ymUMTHdrSxvwuoHBgIE",
             authDomain: "familypoints-dic-25.firebaseapp.com",
@@ -168,47 +160,50 @@
         };
 
         let db, auth, currentUser;
-        let selectedReward = null; // Para guardar qué premio se está canjeando
+        let selectedReward = null;
 
         const app = {
             init: function() {
-                try {
-                    firebase.initializeApp(firebaseConfig);
-                    auth = firebase.auth();
-                    db = firebase.firestore();
-                    
-                    auth.onAuthStateChanged(user => {
-                        if(user) {
-                            this.setup(user);
-                        } else {
-                            document.getElementById('auth-screen').classList.remove('hidden');
-                        }
-                    });
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
 
-                    // Chivato de carga lenta
-                    setTimeout(() => {
-                        const rankText = document.getElementById('list-ranking').innerText;
-                        if(rankText.includes("Cargando") && !document.getElementById('app-screen').classList.contains('hidden')) {
-                            document.getElementById('loading-help').style.display = 'block';
-                            alert("La app no conecta. ¿Has añadido el dominio en Firebase Console -> Auth -> Settings?");
-                        }
-                    }, 4000);
-
-                } catch(e) {
-                    this.showError("Error inicial: " + e.message);
-                }
+                auth.onAuthStateChanged(user => {
+                    if (user) {
+                        this.setup(user);
+                    } else {
+                        document.getElementById('auth-screen').classList.remove('hidden');
+                        document.getElementById('app-screen').classList.add('hidden');
+                    }
+                });
             },
 
             setup: function(user) {
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
-                
-                // Escuchar mi usuario
+
+                // Listener de MI usuario (con Auto-Reparación)
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
-                    if(doc.exists) {
+                    if (doc.exists) {
                         currentUser = { uid: user.uid, ...doc.data() };
-                        document.getElementById('header-name').innerText = `${currentUser.name} (${currentUser.points})`;
+                        
+                        // PARCHE: Si el usuario existe pero no tiene nombre (es undefined), lo arreglamos
+                        if(!currentUser.name || currentUser.name === 'undefined') {
+                            db.collection('users').doc(user.uid).update({
+                                name: user.email.split('@')[0],
+                                points: 0
+                            });
+                        }
+
+                        document.getElementById('header-user').innerText = `${currentUser.name} (${currentUser.points})`;
                         document.getElementById('my-email').innerText = currentUser.email;
+                    } else {
+                        // Si no existe el documento, lo creamos
+                        db.collection('users').doc(user.uid).set({
+                            name: user.email.split('@')[0],
+                            email: user.email,
+                            points: 0
+                        });
                     }
                 });
 
@@ -216,180 +211,155 @@
             },
 
             listenData: function() {
-                // 1. Usuarios (Ranking)
+                // Usuarios
                 db.collection('users').onSnapshot(snap => {
                     const list = document.getElementById('list-ranking');
-                    const listUsers = document.getElementById('list-users');
-                    list.innerHTML = ""; listUsers.innerHTML = "";
+                    const listSet = document.getElementById('list-users');
+                    list.innerHTML = ""; listSet.innerHTML = "";
                     let users = [];
                     snap.forEach(d => users.push({id:d.id, ...d.data()}));
-                    users.sort((a,b) => b.points - a.points);
+                    users.sort((a,b) => (b.points||0) - (a.points||0));
 
                     users.forEach(u => {
-                        list.innerHTML += `<div class="list-item"><b>${u.name}</b> <span class="user-pill">${u.points} pts</span></div>`;
+                        const safeName = u.name || "Sin nombre";
+                        const safeEmail = u.email || "Sin email";
                         
-                        listUsers.innerHTML += `
+                        list.innerHTML += `<div class="list-item"><b>${safeName}</b> <span class="user-pill">${u.points || 0}</span></div>`;
+                        
+                        listSet.innerHTML += `
                             <div class="list-item">
-                                <span>${u.name} <small>(${u.email})</small></span>
-                                <button class="btn-del" style="background:#eee; color:#333" onclick="app.editUser('${u.id}', '${u.name}')">✏️</button>
+                                <span style="font-size:0.8rem">${safeName}<br><small>${safeEmail}</small></span>
+                                <div>
+                                    <button class="btn-icon" onclick="app.editUser('${u.id}', '${safeName}')">✏️</button>
+                                    <button class="btn-icon" style="color:red" onclick="app.del('users', '${u.id}')">🗑️</button>
+                                </div>
                             </div>`;
                     });
                 });
 
-                // 2. Tareas
+                // Tareas
                 db.collection('tasks').onSnapshot(snap => {
                     const sel = document.getElementById('select-task');
                     const list = document.getElementById('list-tasks-admin');
                     const oldVal = sel.value;
-                    sel.innerHTML = "<option value=''>Elige actividad...</option>";
+                    sel.innerHTML = "<option value=''>Elige...</option>";
                     list.innerHTML = "";
-                    
                     snap.forEach(d => {
                         const t = d.data();
-                        // Select
                         let opt = document.createElement('option');
                         opt.value = d.id; opt.setAttribute('data-pts', t.pts); opt.text = `${t.name} (+${t.pts})`;
                         sel.appendChild(opt);
-                        // Admin List
-                        list.innerHTML += `<div class="list-item"><span>${t.name} (+${t.pts})</span> <button class="btn-del" onclick="app.del('tasks','${d.id}')">🗑️</button></div>`;
+                        list.innerHTML += `<div class="list-item"><span>${t.name} (+${t.pts})</span> <button class="btn-del" onclick="app.del('tasks','${d.id}')">Borrar</button></div>`;
                     });
                     sel.value = oldVal;
                 });
 
-                // 3. Premios (Rewards)
+                // Premios
                 db.collection('rewards').onSnapshot(snap => {
                     const listR = document.getElementById('list-redeem');
                     const listA = document.getElementById('list-rewards-admin');
                     listR.innerHTML = ""; listA.innerHTML = "";
-
                     snap.forEach(d => {
                         const r = d.data();
-                        // Canjear List
-                        const can = currentUser && currentUser.points >= r.cost;
+                        const can = currentUser && (currentUser.points || 0) >= r.cost;
                         const color = can ? 'var(--primary)' : '#ccc';
                         
                         listR.innerHTML += `
                             <div class="list-item">
                                 <div><b>${r.name}</b><br><small>${r.cost} pts</small></div>
-                                <button onclick="app.openRedeem('${d.id}', '${r.name}', ${r.cost})" 
-                                    style="background:${color}; color:white; border:none; padding:8px 12px; border-radius:5px; font-weight:bold;">
-                                    Canjear
-                                </button>
+                                <button onclick="app.askRedeem('${r.name}', ${r.cost})" 
+                                    style="background:${color}; color:white; border:none; padding:8px 12px; border-radius:5px;">Canjear</button>
                             </div>`;
-
-                        // Admin List
-                        listA.innerHTML += `<div class="list-item"><span>${r.name} (-${r.cost})</span> <button class="btn-del" onclick="app.del('rewards','${d.id}')">🗑️</button></div>`;
+                            
+                        listA.innerHTML += `<div class="list-item"><span>${r.name} (-${r.cost})</span> <button class="btn-del" onclick="app.del('rewards','${d.id}')">Borrar</button></div>`;
                     });
                 });
             },
 
-            // --- ACCIONES ---
-
-            openRedeem: function(id, name, cost) {
-                if(currentUser.points < cost) return alert("No tienes suficientes puntos.");
-                selectedReward = { id, name, cost };
+            // LOGICA
+            addPoints: function() {
+                const sel = document.getElementById('select-task');
+                const time = document.getElementById('input-time').value;
+                if(!sel.value || !time) return alert("Rellena todo");
+                const pts = parseInt(sel.options[sel.selectedIndex].getAttribute('data-pts'));
                 
-                document.getElementById('modal-title').innerText = `Canjear: ${name} (${cost} pts)`;
-                document.getElementById('modal-date').valueAsDate = new Date(); // Fecha de hoy
-                document.getElementById('redeem-modal').classList.remove('hidden');
+                db.collection('users').doc(currentUser.uid).update({
+                    points: (currentUser.points || 0) + pts
+                });
+                alert("¡Puntos guardados!");
+                app.nav('view-ranking', document.querySelector('.nav-item'));
+            },
+
+            askRedeem: function(name, cost) {
+                if((currentUser.points || 0) < cost) return alert("Te faltan puntos.");
+                selectedReward = { name, cost };
+                document.getElementById('modal-title').innerText = "Canjear: " + name;
+                document.getElementById('modal-date').valueAsDate = new Date();
+                document.getElementById('modal-overlay').classList.remove('hidden');
             },
 
             confirmRedeem: function() {
                 const date = document.getElementById('modal-date').value;
-                if(!date) return alert("Selecciona una fecha.");
+                if(!date) return alert("Pon una fecha");
 
-                // 1. Restar Puntos
+                // Restar puntos
                 db.collection('users').doc(currentUser.uid).update({
                     points: currentUser.points - selectedReward.cost
                 });
 
-                // 2. Preparar Email
-                // Obtenemos todos los emails de la BD para ponerlos en copia
+                // Enviar Mail
                 db.collection('users').get().then(snap => {
                     let emails = [];
-                    snap.forEach(d => emails.push(d.data().email));
-                    const mailList = emails.join(',');
+                    snap.forEach(d => { 
+                        const u = d.data();
+                        if(u.email) emails.push(u.email);
+                    });
                     
-                    const subject = encodeURIComponent("Solicitud Canje Puntos");
+                    const subject = encodeURIComponent("Canje Family Points");
                     const body = encodeURIComponent(
-                        `Hola,\n\n${currentUser.name} solicita canjear:\n` +
-                        `🎁 ${selectedReward.name}\n` +
-                        `📅 Fecha: ${date}\n` +
-                        `💰 Coste: ${selectedReward.cost} pts.\n`
+                        `Hola,\n\n${currentUser.name} solicita canjear:\nPremio: ${selectedReward.name}\nFecha: ${date}\nCoste: ${selectedReward.cost} pts.`
                     );
-
-                    window.location.href = `mailto:${mailList}?subject=${subject}&body=${body}`;
                     
-                    alert("Canje registrado. Se abrirá tu correo para notificar.");
-                    document.getElementById('redeem-modal').classList.add('hidden');
+                    window.location.href = `mailto:${emails.join(',')}?subject=${subject}&body=${body}`;
+                    
+                    document.getElementById('modal-overlay').classList.add('hidden');
+                    alert("Canje registrado. Enviando mail...");
                 });
             },
 
-            addPoints: function() {
-                const sel = document.getElementById('select-task');
-                const time = document.getElementById('input-time').value;
-                if(!sel.value || !time) return alert("Rellena todo.");
-                
-                const pts = parseInt(sel.options[sel.selectedIndex].getAttribute('data-pts'));
-                db.collection('users').doc(currentUser.uid).update({
-                    points: (currentUser.points || 0) + pts
-                });
-                alert("Puntos sumados.");
-                document.getElementById('input-time').value = "";
-            },
-
-            // --- ADMIN ---
             createTask: function() {
                 const n = document.getElementById('new-t-name').value;
                 const p = parseInt(document.getElementById('new-t-pts').value);
-                if(n && p) {
-                    db.collection('tasks').add({name:n, pts:p});
-                    document.getElementById('new-t-name').value="";
-                }
+                if(n && p) { db.collection('tasks').add({name:n, pts:p}); document.getElementById('new-t-name').value=""; }
             },
             createReward: function() {
                 const n = document.getElementById('new-r-name').value;
                 const c = parseInt(document.getElementById('new-r-cost').value);
-                if(n && c) {
-                    db.collection('rewards').add({name:n, cost:c});
-                    document.getElementById('new-r-name').value="";
-                }
+                if(n && c) { db.collection('rewards').add({name:n, cost:c}); document.getElementById('new-r-name').value=""; }
             },
-            del: function(col, id) {
-                if(confirm("¿Borrar?")) db.collection(col).doc(id).delete();
-            },
-            editUser: function(id, name) {
-                const n = prompt("Nuevo nombre:", name);
-                if(n) db.collection('users').doc(id).update({name:n});
+            
+            del: function(col, id) { if(confirm("¿Borrar?")) db.collection(col).doc(id).delete(); },
+            
+            editUser: function(id, currentName) {
+                const n = prompt("Nuevo nombre:", currentName);
+                if(n) db.collection('users').doc(id).update({name: n});
             },
 
-            // --- AUTH ---
-            login: async function() {
-                try {
-                    await auth.signInWithEmailAndPassword(
-                        document.getElementById('email').value,
-                        document.getElementById('pass').value
-                    );
-                } catch(e) { this.showError(e.message); }
+            // AUTH
+            login: function() {
+                const e = document.getElementById('email').value;
+                const p = document.getElementById('pass').value;
+                auth.signInWithEmailAndPassword(e, p).catch(err => document.getElementById('auth-error').innerText = err.message);
             },
-            register: async function() {
-                try {
-                    const e = document.getElementById('email').value;
-                    const p = document.getElementById('pass').value;
-                    const cred = await auth.createUserWithEmailAndPassword(e, p);
+            register: function() {
+                const e = document.getElementById('email').value;
+                const p = document.getElementById('pass').value;
+                auth.createUserWithEmailAndPassword(e, p).then(cred => {
                     const name = e.split('@')[0];
-                    await db.collection('users').doc(cred.user.uid).set({
-                        name: name.charAt(0).toUpperCase() + name.slice(1), email: e, points: 0
-                    });
-                    alert("Creado con éxito");
-                } catch(e) { this.showError(e.message); }
+                    return db.collection('users').doc(cred.user.uid).set({name: name, email: e, points: 0});
+                }).catch(err => document.getElementById('auth-error').innerText = err.message);
             },
             logout: function() { auth.signOut(); location.reload(); },
-            
-            showError: function(msg) {
-                const b = document.getElementById('error-banner');
-                b.innerText = msg; b.style.display = 'block';
-            },
 
             nav: function(view, el) {
                 document.querySelectorAll('.main-content > div').forEach(d => d.classList.add('hidden'));
