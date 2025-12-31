@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Family Points v3</title>
+    <title>Family Points Final</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --primary: #4a90e2; --bg: #f0f2f5; --text: #333; --card: #fff; }
+        :root { --primary: #4a90e2; --bg: #f0f2f5; --text: #333; --card: #fff; --admin: #2d3436; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
 
-        /* HEADER */
-        header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        header { background: #fff; padding: 10px 15px; display: flex; flex-direction: column; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .family-badge { background: #e17055; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-top: 5px; align-self: flex-start; }
         .user-pill { background: var(--primary); color: white; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
         
-        /* CONTENIDO */
+        #admin-panel { background: var(--admin); color: white; padding: 15px; display: none; }
+        #admin-panel h3 { margin: 0 0 10px 0; color: #fab1a0; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .admin-card { background: rgba(255,255,255,0.1); padding: 10px; margin-bottom: 10px; border-radius: 8px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; }
+
         .main-content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; }
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         h2 { color: var(--primary); margin: 0 0 10px 0; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
 
-        /* ELEMENTOS */
         .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
         .history-item { padding: 10px 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .history-date { color: #888; font-size: 0.75rem; margin-bottom: 2px; }
@@ -31,24 +34,22 @@
         input, select { width: 100%; padding: 12px; margin: 5px 0 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; font-size: 16px; }
         
         .btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; margin-top: 5px; cursor: pointer; }
+        .btn-sec { background: #636e72; margin-top: 10px; }
         .btn-del { background: #ff7675; width: auto; padding: 5px 10px; margin: 0; font-size: 0.8rem; border: none; border-radius: 4px; color: white; cursor: pointer;}
+        .btn-copy { background: #00b894; font-size: 0.75rem; padding: 5px 10px; width: auto; border:none; border-radius:4px; color:white; cursor:pointer; margin-right:5px;}
         .btn-icon { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 
-        /* INPUT GROUP PARA ADMIN */
         .input-group { display: flex; gap: 5px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee; }
         .input-group input { margin-bottom: 0; }
 
-        /* LOGIN */
-        #auth-screen { position: fixed; inset: 0; background: var(--primary); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        #auth-screen, #join-screen { position: fixed; inset: 0; background: var(--primary); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .login-box { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 320px; text-align: center; }
 
-        /* NAVBAR */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #ddd; display: grid; grid-template-columns: repeat(4, 1fr); height: 65px; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aaa; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-item span { font-size: 22px; margin-bottom: 2px; }
 
-        /* MODAL */
         #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 3000; display: flex; justify-content: center; align-items: center; padding: 20px; }
         .modal-box { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 320px; text-align: center; }
 
@@ -68,17 +69,42 @@
         </div>
     </div>
 
+    <div id="join-screen" class="hidden">
+        <div class="login-box">
+            <h2 style="color:var(--primary);">¡Hola! 👋</h2>
+            <p>Aún no perteneces a ninguna familia.</p>
+            <p style="font-size:0.9rem; color:#666;">Pide al administrador que te envíe el <b>Link de Invitación</b>.</p>
+            <div style="border-top:1px solid #eee; margin:15px 0; padding-top:10px;">
+                <p style="font-size:0.8rem;">O si eres el <b>Super Admin</b>, crea una familia abajo:</p>
+                <button class="btn btn-sec" onclick="app.logout()">Cerrar Sesión</button>
+            </div>
+        </div>
+    </div>
+
     <div id="app-screen" class="hidden">
+        
+        <div id="admin-panel">
+            <h3>🕴️ Super Admin Zone</h3>
+            <p style="font-size:0.8rem; margin-bottom:10px;">Gestión de Familias.</p>
+            <div class="input-group" style="border:none; padding:0; margin-bottom:10px;">
+                <input id="sa-fam-name" placeholder="Nombre nueva familia" style="background:rgba(255,255,255,0.9);">
+                <button class="btn" style="width:auto; margin-top:5px;" onclick="app.saCreateFamily()">Crear</button>
+            </div>
+            <div id="sa-fam-list"></div>
+        </div>
+
         <header>
-            <span id="header-user" class="user-pill">Cargando...</span>
-            <button onclick="app.logout()" style="border:none; background:none; color:#666; font-size:0.9rem;">Salir</button>
+            <div class="header-top">
+                <span id="header-user" class="user-pill">Cargando...</span>
+                <button onclick="app.logout()" style="border:none; background:none; color:#666; font-size:0.9rem;">Salir</button>
+            </div>
+            <div id="header-family-name" class="family-badge">Cargando familia...</div>
         </header>
 
         <div class="main-content">
-            
             <div id="view-ranking">
                 <div class="card">
-                    <h2>🏆 Ranking Familiar</h2>
+                    <h2 id="family-title">🏆 Ranking</h2>
                     <div id="list-ranking">Cargando...</div>
                 </div>
             </div>
@@ -88,13 +114,10 @@
                     <h2>➕ Ganar Puntos</h2>
                     <p style="font-size:0.9rem; color:#666; margin-bottom:10px;">¿Quién hizo la tarea?</p>
                     <select id="select-user-action" style="margin-bottom:15px; background:#f9f9f9; font-weight:bold;"></select>
-                    
                     <label>Actividad Realizada</label>
                     <select id="select-task"><option>Cargando...</option></select>
-                    
-                    <label>Minutos (Opcional si es fijo)</label>
+                    <label>Minutos (Opcional)</label>
                     <input type="number" id="input-time" placeholder="Ej: 30">
-                    
                     <button class="btn" onclick="app.addPoints()">Guardar Puntos</button>
                 </div>
             </div>
@@ -102,14 +125,12 @@
             <div id="view-redeem" class="hidden">
                 <div class="card">
                     <h2>🎁 Canjear Premios</h2>
-                    <p style="color:#666; font-size:0.9rem">Elige un premio de la lista:</p>
                     <div id="list-redeem"></div>
                 </div>
-
                 <div class="card">
                     <h2>📜 Historial de Canjes</h2>
                     <div id="list-history" style="max-height: 300px; overflow-y:auto;">
-                        <p style="text-align:center; color:#999; font-size:0.9rem">Cargando historial...</p>
+                        <p style="text-align:center; color:#999;">Cargando historial...</p>
                     </div>
                 </div>
             </div>
@@ -117,19 +138,18 @@
             <div id="view-settings" class="hidden">
                 <div class="card">
                     <h2>⚙️ Mi Cuenta</h2>
-                    <p>Logueado como: <b id="my-email"></b></p>
+                    <p>Usuario: <b id="my-email"></b></p>
+                    <p>Familia ID: <span id="my-family-id" style="font-family:monospace; color:#888; font-size:0.7rem;"></span></p>
                 </div>
-
                 <div class="card">
-                    <h2>👥 Gestión de Familia</h2>
+                    <h2>👥 Miembros Familia</h2>
                     <div id="list-users"></div>
                     <div class="input-group">
-                        <input id="new-u-name" placeholder="Nombre (ej: Hijo, Abuela)">
+                        <input id="new-u-name" placeholder="Nombre (ej: Hijo)">
                         <input id="new-u-email" placeholder="Email (Opcional)">
                     </div>
                     <button class="btn" onclick="app.createManualUser()">Añadir Miembro</button>
                 </div>
-
                 <div class="card">
                     <h2>🧹 Actividades</h2>
                     <div id="list-tasks-admin"></div>
@@ -139,7 +159,6 @@
                     </div>
                     <button class="btn" onclick="app.createTask()">Crear Actividad</button>
                 </div>
-
                 <div class="card">
                     <h2>🎁 Premios</h2>
                     <div id="list-rewards-admin"></div>
@@ -163,7 +182,6 @@
     <div id="modal-overlay" class="hidden">
         <div class="modal-box">
             <h3 id="modal-title">Elegir Fecha</h3>
-            <p>¿Cuándo disfrutarás este premio?</p>
             <input type="date" id="modal-date" style="border:2px solid var(--primary); padding:15px;">
             <div style="display:flex; gap:10px; margin-top:15px;">
                 <button class="btn" style="background:#ccc; color:#333" onclick="document.getElementById('modal-overlay').classList.add('hidden')">Cancelar</button>
@@ -173,6 +191,19 @@
     </div>
 
     <script>
+        // ==========================================
+        // CONFIGURACIÓN (REVISA ESTO ANTES DE GUARDAR)
+        // ==========================================
+        
+        // 1. TU EMAIL
+        const SUPER_ADMIN_EMAIL = "raul.garcia.ortega@gmail.com"; 
+
+        // 2. LA DIRECCIÓN DE TU GITHUB (Asegúrate que termina en /)
+        // Ejemplo: "https://raulgarciaortega-jpg.github.io/familypoints/"
+        const APP_URL = "https://raulgarciaortega-jpg.github.io/familypoints/"; 
+
+        // ==========================================
+
         const firebaseConfig = {
             apiKey: "AIzaSyDhaA-USi3WZD67ymUMTHdrSxvwuoHBgIE",
             authDomain: "familypoints-dic-25.firebaseapp.com",
@@ -186,6 +217,10 @@
         let db, auth, currentUser;
         let selectedReward = null;
         let allUsers = []; 
+        let currentFamilyId = null;
+        
+        // VARIABLE PARA CONTROLAR LAS ESCUCHAS Y EVITAR MEZCLAS
+        let listeners = [];
 
         const app = {
             init: function() {
@@ -193,41 +228,107 @@
                 auth = firebase.auth();
                 db = firebase.firestore();
 
+                const urlParams = new URLSearchParams(window.location.search);
+                const joinId = urlParams.get('join');
+                if(joinId) sessionStorage.setItem('pendingJoin', joinId);
+
                 auth.onAuthStateChanged(user => {
                     if (user) {
                         this.setup(user);
                     } else {
                         document.getElementById('auth-screen').classList.remove('hidden');
                         document.getElementById('app-screen').classList.add('hidden');
+                        document.getElementById('join-screen').classList.add('hidden');
                     }
                 });
             },
 
             setup: function(user) {
                 document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
+                const pendingJoin = sessionStorage.getItem('pendingJoin');
 
+                // Escuchar cambios en el USUARIO (para detectar cambio de familia)
                 db.collection('users').doc(user.uid).onSnapshot(doc => {
                     if (doc.exists) {
-                        currentUser = { uid: user.uid, ...doc.data() };
-                        if(!currentUser.name || currentUser.name === 'undefined') {
-                            db.collection('users').doc(user.uid).update({ name: user.email.split('@')[0], points: 0 });
+                        const userData = doc.data();
+                        
+                        // LÓGICA DE CAMBIO DE FAMILIA
+                        if (pendingJoin && userData.familyId !== pendingJoin) {
+                            if(confirm("⚠ Estás entrando a una familia distinta. ¿Cambiar ahora?")) {
+                                db.collection('users').doc(user.uid).update({ familyId: pendingJoin })
+                                .then(() => {
+                                    sessionStorage.removeItem('pendingJoin');
+                                    // Limpiamos la URL para que quede bonita
+                                    window.history.replaceState({}, document.title, window.location.pathname);
+                                    // IMPORTANTE: No recargamos la pagina, Firestore detectará el cambio solo
+                                });
+                                return; // Paramos aquí y esperamos a que Firestore nos avise del cambio
+                            } else {
+                                sessionStorage.removeItem('pendingJoin');
+                            }
                         }
-                        document.getElementById('header-user').innerText = `${currentUser.name} (${currentUser.points} pts)`;
-                        document.getElementById('my-email').innerText = currentUser.email;
+
+                        // Si llegamos aquí, cargamos la interfaz
+                        currentUser = { uid: user.uid, ...userData };
+                        if(!currentUser.name) db.collection('users').doc(user.uid).update({ name: user.email.split('@')[0] });
+
+                        // Si el ID de familia ha cambiado, recargamos todo
+                        if (currentUser.familyId && currentUser.familyId !== currentFamilyId) {
+                            currentFamilyId = currentUser.familyId;
+                            this.loadFamilyData(); // AQUÍ ESTÁ LA CLAVE: Recargar datos limpios
+                            this.getFamilyName(currentFamilyId);
+                        }
+
+                        // Mostrar pantallas
+                        if (currentFamilyId) {
+                            document.getElementById('app-screen').classList.remove('hidden');
+                            document.getElementById('join-screen').classList.add('hidden');
+                            document.getElementById('header-user').innerText = `${currentUser.name} (${currentUser.points || 0} pts)`;
+                            document.getElementById('my-email').innerText = currentUser.email;
+                            document.getElementById('my-family-id').innerText = currentFamilyId;
+                        } else {
+                            if(currentUser.email === SUPER_ADMIN_EMAIL) {
+                                document.getElementById('app-screen').classList.remove('hidden');
+                            } else {
+                                document.getElementById('join-screen').classList.remove('hidden');
+                            }
+                        }
+
+                        if(currentUser.email === SUPER_ADMIN_EMAIL) this.initSuperAdmin();
+
                     } else {
-                        db.collection('users').doc(user.uid).set({
-                            name: user.email.split('@')[0], email: user.email, points: 0
-                        });
+                        // Usuario nuevo
+                        const initialData = { name: user.email.split('@')[0], email: user.email, points: 0, createdAt: new Date() };
+                        if(pendingJoin) { 
+                            initialData.familyId = pendingJoin; 
+                            sessionStorage.removeItem('pendingJoin'); 
+                        }
+                        db.collection('users').doc(user.uid).set(initialData);
                     }
                 });
-
-                this.listenData();
             },
 
-            listenData: function() {
-                // USUARIOS
-                db.collection('users').onSnapshot(snap => {
+            // FUNCIÓN PARA LIMPIAR ESCUCHAS ANTIGUAS (EVITA MEZCLAS)
+            detachListeners: function() {
+                listeners.forEach(unsubscribe => unsubscribe());
+                listeners = [];
+                // Limpiar visualmente también
+                document.getElementById('list-ranking').innerHTML = "<div style='padding:10px; color:#888'>Cargando datos...</div>";
+                document.getElementById('list-users').innerHTML = "";
+                document.getElementById('list-tasks-admin').innerHTML = "";
+                document.getElementById('list-redeem').innerHTML = "";
+            },
+
+            loadFamilyData: function() {
+                if(!currentFamilyId) return;
+                
+                // 1. PRIMERO LIMPIAMOS LO ANTERIOR
+                this.detachListeners();
+                
+                // 2. INICIAMOS NUEVAS ESCUCHAS Y LAS GUARDAMOS
+                
+                // --- USUARIOS ---
+                const unsubUsers = db.collection('users').where('familyId', '==', currentFamilyId).onSnapshot(snap => {
                     const listRanking = document.getElementById('list-ranking');
                     const listAdmin = document.getElementById('list-users');
                     const selectUser = document.getElementById('select-user-action'); 
@@ -239,147 +340,165 @@
 
                     allUsers.forEach(u => {
                         const safeName = u.name || "Sin nombre";
-                        const pts = u.points || 0;
-                        listRanking.innerHTML += `<div class="list-item"><span style="font-size:1.1rem">${safeName}</span> <span class="user-pill">${pts}</span></div>`;
-                        listAdmin.innerHTML += `<div class="list-item"><span style="font-size:0.85rem"><b>${safeName}</b><br><small>${pts} pts</small></span><div><button class="btn-icon" onclick="app.editUser('${u.id}', '${safeName}')">✏️</button><button class="btn-icon" style="color:red" onclick="app.del('users', '${u.id}')">🗑️</button></div></div>`;
-                        
+                        listRanking.innerHTML += `<div class="list-item"><span style="font-size:1.1rem">${safeName}</span> <span class="user-pill">${u.points||0}</span></div>`;
+                        let delBtn = u.isVirtual ? `<button class="btn-icon" style="color:red" onclick="app.del('users', '${u.id}')">🗑️</button>` : '';
+                        listAdmin.innerHTML += `<div class="list-item"><span style="font-size:0.85rem"><b>${safeName}</b><br><small>${u.email||''}</small></span><div><button class="btn-icon" onclick="app.editUser('${u.id}', '${safeName}')">✏️</button>${delBtn}</div></div>`;
                         let opt = document.createElement('option');
                         opt.value = u.id; opt.text = safeName + (currentUser && u.id === currentUser.uid ? " (Yo)" : "");
                         if(currentUser && u.id === currentUser.uid) opt.selected = true;
                         selectUser.appendChild(opt);
                     });
                 });
+                listeners.push(unsubUsers);
 
-                // TAREAS
-                db.collection('tasks').onSnapshot(snap => {
+                // --- TAREAS ---
+                const unsubTasks = db.collection('tasks').where('familyId', '==', currentFamilyId).onSnapshot(snap => {
                     const sel = document.getElementById('select-task');
                     const list = document.getElementById('list-tasks-admin');
-                    const oldVal = sel.value;
-                    sel.innerHTML = "<option value=''>Elige actividad...</option>";
-                    list.innerHTML = "";
+                    sel.innerHTML = "<option value=''>Elige actividad...</option>"; list.innerHTML = "";
                     snap.forEach(d => {
                         const t = d.data();
                         let opt = document.createElement('option');
-                        opt.value = d.id; opt.setAttribute('data-pts', t.pts); opt.text = `${t.name} (+${t.pts} pts)`;
+                        opt.value = d.id; opt.setAttribute('data-pts', t.pts); opt.text = `${t.name} (+${t.pts})`;
                         sel.appendChild(opt);
                         list.innerHTML += `<div class="list-item"><span>${t.name} (+${t.pts})</span> <button class="btn-del" onclick="app.del('tasks','${d.id}')">X</button></div>`;
                     });
-                    if(oldVal) sel.value = oldVal;
                 });
+                listeners.push(unsubTasks);
 
-                // PREMIOS
-                db.collection('rewards').onSnapshot(snap => {
+                // --- PREMIOS ---
+                const unsubRewards = db.collection('rewards').where('familyId', '==', currentFamilyId).onSnapshot(snap => {
                     const listR = document.getElementById('list-redeem');
                     const listA = document.getElementById('list-rewards-admin');
                     listR.innerHTML = ""; listA.innerHTML = "";
                     snap.forEach(d => {
                         const r = d.data();
-                        const myPts = currentUser ? (currentUser.points || 0) : 0;
-                        const can = myPts >= r.cost;
+                        const can = (currentUser.points || 0) >= r.cost;
                         const btnStyle = can ? 'background:var(--primary)' : 'background:#ccc; cursor:not-allowed';
                         listR.innerHTML += `<div class="list-item"><div><b>${r.name}</b><br><small>${r.cost} pts</small></div><button onclick="app.askRedeem('${r.name}', ${r.cost})" style="${btnStyle}; color:white; border:none; padding:8px 12px; border-radius:5px;">Canjear</button></div>`;
                         listA.innerHTML += `<div class="list-item"><span>${r.name} (-${r.cost})</span> <button class="btn-del" onclick="app.del('rewards','${d.id}')">X</button></div>`;
                     });
                 });
+                listeners.push(unsubRewards);
 
-                // --- NUEVO: HISTORIAL DE CANJES ---
-                db.collection('history').orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
+                // --- HISTORIAL ---
+                const unsubHistory = db.collection('history').where('familyId', '==', currentFamilyId).orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
                     const listH = document.getElementById('list-history');
                     listH.innerHTML = "";
-                    if(snap.empty) {
-                        listH.innerHTML = "<p style='text-align:center; color:#ccc; font-style:italic;'>Aún no hay canjes registrados.</p>";
-                        return;
-                    }
+                    if(snap.empty) { listH.innerHTML = "<p style='text-align:center; color:#ccc;'>Sin historial.</p>"; return; }
                     snap.forEach(d => {
                         const h = d.data();
-                        // Formato: FECHA - QUIEN - QUE - PUNTOS
-                        listH.innerHTML += `
-                            <div class="history-item">
-                                <div class="history-date">📅 Para el: ${h.date}</div>
+                        listH.innerHTML += `<div class="history-item"><div class="history-date">📅 ${h.date}</div><div><b>${h.userName}</b> canjeó <span style="color:var(--primary)">${h.rewardName}</span> (${h.cost} pts)</div></div>`;
+                    });
+                });
+                listeners.push(unsubHistory);
+            },
+
+            getFamilyName: function(famId) {
+                db.collection('families').doc(famId).get().then(doc => {
+                    if(doc.exists) {
+                        document.getElementById('header-family-name').innerText = "Familia: " + doc.data().name;
+                    }
+                });
+            },
+
+            // SUPER ADMIN
+            initSuperAdmin: function() {
+                const panel = document.getElementById('admin-panel');
+                panel.style.display = 'block';
+                db.collection('families').onSnapshot(snap => {
+                    const list = document.getElementById('sa-fam-list');
+                    list.innerHTML = "";
+                    snap.forEach(doc => {
+                        const f = doc.data();
+                        const baseUrl = APP_URL.endsWith('/') ? APP_URL : APP_URL + '/';
+                        const link = baseUrl + "?join=" + doc.id;
+                        
+                        list.innerHTML += `
+                            <div class="admin-card">
+                                <div style="flex:1"><b>${f.name}</b><br><small>ID: ${doc.id}</small></div>
                                 <div>
-                                    <b>${h.userName}</b> canjeó 
-                                    <span style="color:var(--primary)">${h.rewardName}</span>
-                                    <br>
-                                    <small>Gastó ${h.cost} puntos</small>
+                                    <button class="btn-copy" onclick="app.copyLink('${link}')">Copiar Link</button>
+                                    <button class="btn-del" onclick="app.saDeleteFamily('${doc.id}')">🗑️</button>
                                 </div>
                             </div>`;
                     });
                 });
             },
 
-            // FUNCIONES LOGICAS
+            saCreateFamily: function() {
+                const name = document.getElementById('sa-fam-name').value;
+                if(!name) return;
+                db.collection('families').add({ name: name, createdAt: new Date(), createdBy: currentUser.email })
+                    .then(() => { alert("Familia creada."); document.getElementById('sa-fam-name').value = ""; });
+            },
+
+            saDeleteFamily: function(id) {
+                if(confirm("⚠ ¿Seguro que quieres borrar esta familia?")) {
+                    db.collection('families').doc(id).delete();
+                }
+            },
+
+            copyLink: function(text) {
+                navigator.clipboard.writeText(text).then(() => alert("✅ Link copiado! Envíalo por Whatsapp:\n" + text));
+            },
+
+            // USER ACTIONS
             createManualUser: function() {
                 const n = document.getElementById('new-u-name').value;
                 const e = document.getElementById('new-u-email').value;
-                if(!n) return alert("Escribe un nombre.");
-                db.collection('users').add({ name: n, email: e || "virtual@family.app", points: 0, isVirtual: true, createdAt: new Date() })
+                if(!n) return alert("Nombre obligatorio");
+                db.collection('users').add({ name: n, email: e || "virtual@fam.app", points: 0, isVirtual: true, familyId: currentFamilyId })
                     .then(() => { document.getElementById('new-u-name').value = ""; document.getElementById('new-u-email').value = ""; });
             },
-
+            createTask: function() {
+                const n = document.getElementById('new-t-name').value;
+                const p = parseInt(document.getElementById('new-t-pts').value);
+                if(n && p) { db.collection('tasks').add({ name:n, pts:p, familyId: currentFamilyId }); document.getElementById('new-t-name').value=""; document.getElementById('new-t-pts').value=""; }
+            },
+            createReward: function() {
+                const n = document.getElementById('new-r-name').value;
+                const c = parseInt(document.getElementById('new-r-cost').value);
+                if(n && c) { db.collection('rewards').add({ name:n, cost:c, familyId: currentFamilyId }); document.getElementById('new-r-name').value=""; document.getElementById('new-r-cost').value=""; }
+            },
             addPoints: function() {
                 const userSelect = document.getElementById('select-user-action');
                 const taskSelect = document.getElementById('select-task');
                 const targetUserId = userSelect.value;
                 if(!targetUserId || !taskSelect.value) return alert("Faltan datos.");
-                
                 const pts = parseInt(taskSelect.options[taskSelect.selectedIndex].getAttribute('data-pts'));
                 const targetUser = allUsers.find(u => u.id === targetUserId);
-
                 db.collection('users').doc(targetUserId).update({ points: (targetUser.points || 0) + pts })
-                    .then(() => { alert(`¡${pts} puntos sumados a ${targetUser.name}!`); app.nav('view-ranking', document.querySelectorAll('.nav-item')[0]); });
+                    .then(() => { alert(`¡${pts} puntos sumados!`); app.nav('view-ranking', document.querySelectorAll('.nav-item')[0]); });
             },
-
-            createTask: function() {
-                const n = document.getElementById('new-t-name').value;
-                const p = parseInt(document.getElementById('new-t-pts').value);
-                if(n && p) { db.collection('tasks').add({name:n, pts:p}); document.getElementById('new-t-name').value=""; document.getElementById('new-t-pts').value=""; }
-            },
-            createReward: function() {
-                const n = document.getElementById('new-r-name').value;
-                const c = parseInt(document.getElementById('new-r-cost').value);
-                if(n && c) { db.collection('rewards').add({name:n, cost:c}); document.getElementById('new-r-name').value=""; document.getElementById('new-r-cost').value=""; }
-            },
-
             askRedeem: function(name, cost) {
-                if((currentUser.points || 0) < cost) return alert("Te faltan puntos.");
+                if((currentUser.points || 0) < cost) return alert("Faltan puntos");
                 selectedReward = { name, cost };
                 document.getElementById('modal-title').innerText = "Canjear: " + name;
                 document.getElementById('modal-date').valueAsDate = new Date();
                 document.getElementById('modal-overlay').classList.remove('hidden');
             },
-
             confirmRedeem: function() {
                 const date = document.getElementById('modal-date').value;
-                if(!date) return alert("Pon una fecha.");
-
-                // 1. Restar puntos
+                if(!date) return alert("Falta fecha");
                 db.collection('users').doc(currentUser.uid).update({ points: currentUser.points - selectedReward.cost });
-
-                // 2. Guardar en Historial (NUEVO)
                 db.collection('history').add({
-                    rewardName: selectedReward.name,
-                    cost: selectedReward.cost,
-                    date: date,
-                    userName: currentUser.name,
-                    userId: currentUser.uid,
+                    rewardName: selectedReward.name, cost: selectedReward.cost, date: date,
+                    userName: currentUser.name, userId: currentUser.uid, familyId: currentFamilyId,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                // 3. Enviar Mail
-                db.collection('users').get().then(snap => {
+                db.collection('users').where('familyId', '==', currentFamilyId).get().then(snap => {
                     let emails = [];
                     snap.forEach(d => { const u = d.data(); if(u.email && !u.isVirtual) emails.push(u.email); });
-                    const subject = encodeURIComponent("Canje Family Points: " + currentUser.name);
-                    const body = encodeURIComponent(`Hola,\n\n${currentUser.name} ha canjeado:\n🎁 ${selectedReward.name}\n📅 Fecha: ${date}\n💰 ${selectedReward.cost} pts.`);
+                    const subject = encodeURIComponent("Canje: " + currentUser.name);
+                    const body = encodeURIComponent(`${currentUser.name} canjeó:\n🎁 ${selectedReward.name}\n📅 ${date}\n💰 ${selectedReward.cost} pts.`);
                     window.location.href = `mailto:${emails.join(',')}?subject=${subject}&body=${body}`;
                     document.getElementById('modal-overlay').classList.add('hidden');
                 });
             },
-
             del: function(col, id) { if(confirm("¿Borrar?")) db.collection(col).doc(id).delete(); },
             editUser: function(id, currentName) { const n = prompt("Nombre:", currentName); if(n) db.collection('users').doc(id).update({name: n}); },
 
-            // AUTH
             login: function() {
                 const e = document.getElementById('email').value;
                 const p = document.getElementById('pass').value;
@@ -388,13 +507,9 @@
             register: function() {
                 const e = document.getElementById('email').value;
                 const p = document.getElementById('pass').value;
-                auth.createUserWithEmailAndPassword(e, p).then(cred => {
-                    const name = e.split('@')[0];
-                    return db.collection('users').doc(cred.user.uid).set({name: name, email: e, points: 0, isVirtual: false});
-                }).catch(err => document.getElementById('auth-error').innerText = err.message);
+                auth.createUserWithEmailAndPassword(e, p).then(cred => {}).catch(err => document.getElementById('auth-error').innerText = err.message);
             },
             logout: function() { auth.signOut(); location.reload(); },
-
             nav: function(view, el) {
                 document.querySelectorAll('.main-content > div').forEach(d => d.classList.add('hidden'));
                 document.getElementById(view).classList.remove('hidden');
